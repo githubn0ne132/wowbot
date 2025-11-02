@@ -62,6 +62,11 @@ std::string MoveTo(float x, float y, float z) {
         WOWPOS pos = { x, y, z };
         void* pPlayer = (void*)*(DWORD*)0x00C79CE0;
 
+        if (!pPlayer) {
+            OutputDebugStringA("[GameActions] Error: Player pointer is null.\n");
+            return "MOVE_TO_RESULT:ERROR:player null";
+        }
+
         bool result = ClickToMove_ptr(pPlayer, 0x4, nullptr, &pos, 0.0f);
 
         sprintf_s(log_buffer, sizeof(log_buffer), "[GameActions] ClickToMove returned: %d\n", result);

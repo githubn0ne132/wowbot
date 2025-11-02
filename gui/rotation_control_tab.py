@@ -254,18 +254,22 @@ class RotationControlTab(ttk.Frame):
             messagebox.showerror("Test Error", error_msg)
 
     def test_move(self):
-        """Tests the MoveTo IPC command."""
-        if not self.app.is_core_initialized():
-            messagebox.showwarning("Not Ready", "Core components not initialized or IPC not connected.")
+        """Tests the MoveTo IPC command by moving the player 5 yards north."""
+        if not self.app.is_core_initialized() or not self.app.om or not self.app.om.local_player:
+            messagebox.showwarning("Not Ready", "Core components not ready or local player not found.")
             return
         try:
-            # A simple set of coordinates to test with
-            x, y, z = -8934.7, -131.5, 83.5
-            self.app.log_message(f"Attempting to move to ({x}, {y}, {z})", "INFO")
-            if self.app.game.move_to(x, y, z):
-                messagebox.showinfo("Test Result", "MoveTo command sent successfully!")
+            player = self.app.om.local_player
+            if player.x_pos is not None and player.y_pos is not None and player.z_pos is not None:
+                # In WoW's coordinate system, North is the positive Y direction.
+                x, y, z = player.x_pos, player.y_pos + 5, player.z_pos
+                self.app.log_message(f"Attempting to move 5 yards north to ({x:.2f}, {y:.2f}, {z:.2f})", "INFO")
+                if self.app.game.move_to(x, y, z):
+                    messagebox.showinfo("Test Result", "MoveTo command sent successfully!")
+                else:
+                    messagebox.showerror("Test Error", "Failed to send MoveTo command.")
             else:
-                messagebox.showerror("Test Error", "Failed to send MoveTo command.")
+                messagebox.showerror("Player Error", "Could not get local player's coordinates.")
         except Exception as e:
             error_msg = f"Error during MoveTo test: {e}"
             self.app.log_message(error_msg, "ERROR")
