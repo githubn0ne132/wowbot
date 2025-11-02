@@ -257,6 +257,8 @@ class GameInterface:
              expected_prefix = "CD:"
         elif command.startswith("IS_BEHIND_TARGET:"):
             expected_prefix = "[IS_BEHIND_TARGET_OK:"
+        elif command.startswith("MOVE_TO:"):
+            expected_prefix = "MOVE_TO_RESULT:"
         # Add other command prefixes here
 
         if expected_prefix is None:
@@ -821,6 +823,31 @@ class GameInterface:
         elif response:
             print(f"[GameInterface] Received unexpected response for {command}: {response}")
         return None
+
+    def move_to(self, x: float, y: float, z: float) -> bool:
+        """Sends a command to the DLL to move the player to the specified coordinates."""
+        if not self.is_ready():
+            print("[GameInterface] Cannot move: Pipe not connected.")
+            return False
+
+        command = f"MOVE_TO:{x},{y},{z}"
+        response = self.send_receive(command, timeout_ms=1500)
+
+        if response and response.startswith("MOVE_TO_RESULT:"):
+            try:
+                result_str = response.split(':')[1]
+                is_success = result_str == "1"
+                print(f"[GameInterface] Received MOVE_TO_RESULT: Result='{result_str}', Success={is_success}")
+                return is_success
+            except (ValueError, IndexError) as e:
+                print(f"[GameInterface] Error parsing MOVE_TO_RESULT response '{response}': {e}")
+                return False
+        elif response:
+            print(f"[GameInterface] Unexpected response to MOVE_TO: {response[:100]}...")
+            return False
+        else:
+            print(f"[GameInterface] No or invalid response received for MOVE_TO command (Timeout?).")
+            return False
 
 
 # --- Example Usage ---

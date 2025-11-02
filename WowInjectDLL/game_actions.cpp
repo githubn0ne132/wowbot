@@ -5,8 +5,9 @@
 #include <windows.h> // For OutputDebugStringA
 #include <stdio.h>  // For sprintf_s
 
-// Define function pointer type
+// Define function pointer types
 typedef char (__cdecl* CastLocalPlayerSpell_t)(int spellId, int unknownIntArg, uint64_t targetGuid, char unknownCharArg);
+typedef bool(__thiscall* ClickToMove_t)(void* pPlayer, int clickType, WGUID* interactGuid, WOWPOS* clickPos, float precision);
 
 std::string CastSpell(int spellId, uint64_t targetGuid) {
     // Get function pointer using the KNOWN WORKING address
@@ -43,4 +44,35 @@ std::string CastSpell(int spellId, uint64_t targetGuid) {
         OutputDebugStringA("[GameActions] CRITICAL ERROR during CastSpell call: Memory access violation.\n");
         return "CAST_RESULT:ERROR:crash"; // Match prefix
     }
-} 
+}
+
+std::string MoveTo(float x, float y, float z) {
+    ClickToMove_t ClickToMove_ptr = reinterpret_cast<ClickToMove_t>(0x727400);
+    char log_buffer[256];
+
+    if (!ClickToMove_ptr) {
+        OutputDebugStringA("[GameActions] Error: ClickToMove function pointer is null.\n");
+        return "MOVE_TO_RESULT:ERROR:func null";
+    }
+
+    try {
+        sprintf_s(log_buffer, sizeof(log_buffer), "[GameActions] Attempting to move to X: %.2f, Y: %.2f, Z: %.2f\n", x, y, z);
+        OutputDebugStringA(log_buffer);
+
+        WOWPOS pos = { x, y, z };
+        void* pPlayer = (void*)*(DWORD*)0x00C79CE0;
+
+        bool result = ClickToMove_ptr(pPlayer, 0x4, nullptr, &pos, 0.0f);
+
+        sprintf_s(log_buffer, sizeof(log_buffer), "[GameActions] ClickToMove returned: %d\n", result);
+        OutputDebugStringA(log_buffer);
+
+        char move_resp_buf[64];
+        sprintf_s(move_resp_buf, sizeof(move_resp_buf), "MOVE_TO_RESULT:%d", result);
+        return std::string(move_resp_buf);
+
+    } catch (...) {
+        OutputDebugStringA("[GameActions] CRITICAL ERROR during MoveTo call: Memory access violation.\n");
+        return "MOVE_TO_RESULT:ERROR:crash";
+    }
+}

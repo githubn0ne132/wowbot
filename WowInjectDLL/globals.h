@@ -32,7 +32,8 @@ enum RequestType {
     REQ_CAST_SPELL,
     REQ_GET_COMBO_POINTS,
     REQ_GET_TARGET_GUID,
-    REQ_IS_BEHIND_TARGET
+    REQ_IS_BEHIND_TARGET,
+    REQ_MOVE_TO
 };
 
 // --- Structs ---
@@ -43,6 +44,9 @@ struct Request {
     std::string spell_name; // Keep for now?
     std::string unit_id;    // For target unit (IS_IN_RANGE)
     uint64_t target_guid = 0;
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
 };
 
 // --- Typedefs ---
