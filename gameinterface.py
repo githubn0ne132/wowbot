@@ -835,9 +835,13 @@ class GameInterface:
 
         if response and response.startswith("MOVE_TO_RESULT:"):
             try:
-                result_str = response.split(':')[1]
-                is_success = result_str == "1"
-                print(f"[GameInterface] Received MOVE_TO_RESULT: Result='{result_str}', Success={is_success}")
+                result_part = response.split(':', 1)[1]
+                if "ERROR" in result_part:
+                    print(f"[GameInterface] MoveTo command failed with error: {result_part}")
+                    return False
+
+                is_success = result_part == "1"
+                print(f"[GameInterface] Received MOVE_TO_RESULT: Success={is_success}")
                 return is_success
             except (ValueError, IndexError) as e:
                 print(f"[GameInterface] Error parsing MOVE_TO_RESULT response '{response}': {e}")

@@ -55,7 +55,7 @@ std::string MoveTo(float x, float y, float z) {
         return "MOVE_TO_RESULT:ERROR:func null";
     }
 
-    try {
+    __try {
         sprintf_s(log_buffer, sizeof(log_buffer), "[GameActions] Attempting to move to X: %.2f, Y: %.2f, Z: %.2f\n", x, y, z);
         OutputDebugStringA(log_buffer);
 
@@ -76,8 +76,10 @@ std::string MoveTo(float x, float y, float z) {
         sprintf_s(move_resp_buf, sizeof(move_resp_buf), "MOVE_TO_RESULT:%d", result);
         return std::string(move_resp_buf);
 
-    } catch (...) {
-        OutputDebugStringA("[GameActions] CRITICAL ERROR during MoveTo call: Memory access violation.\n");
-        return "MOVE_TO_RESULT:ERROR:crash";
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        DWORD exception_code = GetExceptionCode();
+        sprintf_s(log_buffer, sizeof(log_buffer), "[GameActions] CRITICAL ERROR during MoveTo call: Caught exception 0x%X.\n", exception_code);
+        OutputDebugStringA(log_buffer);
+        return "MOVE_TO_RESULT:ERROR:exception_0x" + std::to_string(exception_code);
     }
 }
