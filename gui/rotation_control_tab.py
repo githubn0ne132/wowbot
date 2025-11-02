@@ -79,6 +79,9 @@ class RotationControlTab(ttk.Frame):
         self.test_is_behind_button = ttk.Button(test_button_frame, text="Test Is Behind", command=self.test_is_behind)
         self.test_is_behind_button.pack(side=tk.LEFT, padx=5, pady=5)
 
+        self.test_move_button = ttk.Button(test_button_frame, text="Test Move", command=self.test_move)
+        self.test_move_button.pack(side=tk.LEFT, padx=5, pady=5)
+
         # Add Test Player Stealthed button
         self.test_player_stealthed_button = ttk.Button(
             test_frame,
@@ -248,4 +251,22 @@ class RotationControlTab(ttk.Frame):
         except Exception as e:
             error_msg = f"Error during Is Behind test: {e}"
             self.app.log_message(error_msg, "ERROR")
-            messagebox.showerror("Test Error", error_msg) 
+            messagebox.showerror("Test Error", error_msg)
+
+    def test_move(self):
+        """Tests the MoveTo IPC command."""
+        if not self.app.is_core_initialized():
+            messagebox.showwarning("Not Ready", "Core components not initialized or IPC not connected.")
+            return
+        try:
+            # A simple set of coordinates to test with
+            x, y, z = -8934.7, -131.5, 83.5
+            self.app.log_message(f"Attempting to move to ({x}, {y}, {z})", "INFO")
+            if self.app.game.move_to(x, y, z):
+                messagebox.showinfo("Test Result", "MoveTo command sent successfully!")
+            else:
+                messagebox.showerror("Test Error", "Failed to send MoveTo command.")
+        except Exception as e:
+            error_msg = f"Error during MoveTo test: {e}"
+            self.app.log_message(error_msg, "ERROR")
+            messagebox.showerror("Test Error", error_msg)

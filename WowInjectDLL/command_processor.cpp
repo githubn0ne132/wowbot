@@ -27,6 +27,9 @@ void ProcessCommand(const Request& req) {
         OutputDebugStringA(log_buffer);
 
         switch (req.type) {
+            case REQ_MOVE_TO:
+                result = MoveTo(req.x, req.y, req.z);
+                break;
             case REQ_PING:
                 result = "PONG";
                 break;

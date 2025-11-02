@@ -257,6 +257,9 @@ void HandleIPCCommand(const std::string& command) {
     } else if (sscanf_s(trimmed_command.c_str(), "IS_BEHIND_TARGET:%llx", &req.target_guid) == 1) {
         req.type = REQ_IS_BEHIND_TARGET;
         sprintf_s(log_buffer, sizeof(log_buffer), "[IPC] Queued request type IS_BEHIND_TARGET. TargetGUID: 0x%llX\n", req.target_guid);
+    } else if (sscanf_s(trimmed_command.c_str(), "MOVE_TO:%f,%f,%f", &req.x, &req.y, &req.z) == 3) {
+        req.type = REQ_MOVE_TO;
+        sprintf_s(log_buffer, sizeof(log_buffer), "[IPC] Queued request type MOVE_TO. Coords: %.2f, %.2f, %.2f\n", req.x, req.y, req.z);
     } else {
         char unit_id_buf[64] = {0}; // Increased buffer size slightly
         if (sscanf_s(trimmed_command.c_str(), "IS_IN_RANGE:%d,%63s", &req.spell_id, unit_id_buf, (unsigned)_countof(unit_id_buf)) == 2) {
